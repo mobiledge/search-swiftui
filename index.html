@@ -4,7 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftUI Views List</title>
+    <title>SwiftUI Views Directory | Complete List of iOS UI Components</title>
+    <meta name="description"
+        content="A searchable directory of SwiftUI views with direct links to Apple's official documentation. Find the perfect SwiftUI component for your iOS, macOS, or watchOS app.">
+    <meta name="keywords" content="SwiftUI, iOS development, Apple, UI components, Swift programming, iOS views">
+    <link rel="canonical" href="https://yourwebsite.com/swiftui-views" />
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:title" content="SwiftUI Views Directory">
+    <meta property="og:description" content="Find and explore all SwiftUI views with direct links to documentation">
+    <meta property="og:url" content="https://yourwebsite.com/swiftui-views">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+
     <style>
         body {
             font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
@@ -14,11 +26,20 @@
             padding: 20px;
         }
 
-        h1 {
+        h1,
+        h2 {
             font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
             color: #333;
+        }
+
+        h1 {
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 25px;
+            font-size: 1.5em;
         }
 
         .search-container {
@@ -78,18 +99,52 @@
             padding: 20px;
             color: #666;
         }
-        
+
         .no-results {
             padding: 15px;
             color: #666;
             font-style: italic;
             display: none;
         }
+
+        .subtitle-section {
+            font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .about-section {
+            font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
     </style>
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "SwiftUI Views Directory",
+      "description": "A comprehensive directory of SwiftUI views with links to official documentation",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Your Name or Organization"
+      }
+    }
+    </script>
 </head>
 
 <body>
-    <h1>SwiftUI Views</h1>
+    <h1>Search SwiftUI</h1>
+    <div class="subtitle-section">
+        <p>Explore a complete list of SwiftUI views with direct links to Apple's official documentation. Search for the
+            perfect UI component for your iOS, macOS, or watchOS app.</p>
+    </div>
 
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
@@ -108,8 +163,18 @@
             const loadingIndicator = document.getElementById('loading-indicator');
             const searchInput = document.getElementById('search-input');
             const noResults = document.getElementById('no-results');
-            
+
             let allViews = []; // Store all views for filtering
+
+            // Check for hash in URL to select a specific view
+            function checkUrlHash() {
+                const hash = window.location.hash;
+                if (hash) {
+                    const viewName = decodeURIComponent(hash.substring(1));
+                    searchInput.value = viewName;
+                    filterViews();
+                }
+            }
 
             // Fetch the TSV data
             fetch(tsvUrl)
@@ -151,6 +216,9 @@
                             link.href = 'https://developer.apple.com' + path;
                             link.textContent = viewName;
                             link.target = '_blank'; // Open in new tab
+                            link.addEventListener('click', () => {
+                                selectView(viewName);
+                            });
 
                             listItem.appendChild(link);
                             viewsList.appendChild(listItem);
@@ -162,9 +230,12 @@
                         errorMessage.textContent = 'No SwiftUI views found in the data.';
                         errorMessage.style.display = 'block';
                     }
-                    
+
                     // Focus the search input after loading completes
                     searchInput.focus();
+
+                    // Check for hash in URL
+                    checkUrlHash();
                 })
                 .catch(error => {
                     loadingIndicator.style.display = 'none';
@@ -172,17 +243,17 @@
                     errorMessage.style.display = 'block';
                     console.error('Error fetching or parsing TSV data:', error);
                 });
-                
+
             // Filter function
             function filterViews() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const listItems = viewsList.getElementsByTagName('li');
                 let visibleCount = 0;
-                
+
                 for (let i = 0; i < listItems.length; i++) {
                     const item = listItems[i];
                     const viewName = item.dataset.name;
-                    
+
                     if (viewName.includes(searchTerm)) {
                         item.style.display = '';
                         visibleCount++;
@@ -190,15 +261,32 @@
                         item.style.display = 'none';
                     }
                 }
-                
+
                 // Show/hide no results message
                 noResults.style.display = visibleCount === 0 ? 'block' : 'none';
             }
-            
+
+            // Function to select a view and update URL hash
+            function selectView(viewName) {
+                window.location.hash = encodeURIComponent(viewName);
+            }
+
             // Add event listener for search input
             searchInput.addEventListener('input', filterViews);
+
+            // Listen for hash changes
+            window.addEventListener('hashchange', checkUrlHash);
         });
     </script>
+
+    <footer>
+        <div class="about-section">
+            <h2>About</h2>
+            <p>SwiftUI is Apple's modern UI framework for building apps across all Apple platforms. This directory
+                includes
+                the core views and components available in the SwiftUI framework as of the latest iOS/macOS release.</p>
+        </div>
+    </footer>
 </body>
 
 </html>
