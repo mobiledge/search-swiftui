@@ -1,4 +1,4 @@
-# search-swiftui
+# Search SwiftUI
 
 A searchable web-based directory of SwiftUI views with direct links to Apple's official documentation.
 
@@ -83,4 +83,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📞 Contact
 
-Questions or feedback? Open an issue or reach out through [MobileEdge.io](https://mobiledge.io/contact).
+Questions or feedback? Open an issue or reach out through [mobiledge.io](https://mobiledge.io/contact).
