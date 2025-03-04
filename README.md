@@ -14,7 +14,7 @@ A searchable web-based directory of SwiftUI views with direct links to Apple's o
 
 Visit the live site: https://searchswiftui.dev
 
-![SwiftUI Views Directory Screenshot](screenshot.png)
+![SwiftUI Views Directory Screenshot](screenshot-2.png)
 
 ## 💻 Usage
 
