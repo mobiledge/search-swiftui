@@ -62,19 +62,78 @@
         }
 
         /* Sidebar and content sections */
-        .sidebar,
-        .content {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: 100vh;
-        }
-
         .sidebar {
             background-color: #f8f9fa;
             border-radius: 0;
             display: flex;
             flex-direction: column;
             gap: 24px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        .search-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white;
+            padding: 20px 20px 10px 20px;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .clear-search {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: none;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            margin-top: -10px; /* Adjusting vertical alignment */
+        }
+        
+        .clear-search:hover {
+            opacity: 1;
+        }
+        
+        .clear-search::before,
+        .clear-search::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 16px;
+            background-color: #666;
+            top: 0;
+            left: 50%;
+        }
+        
+        .clear-search::before {
+            transform: translateX(-50%) rotate(45deg);
+        }
+        
+        .clear-search::after {
+            transform: translateX(-50%) rotate(-45deg);
+        }
+
+        .results-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
         }
 
         .sidebar-header {
@@ -138,8 +197,12 @@
             border-bottom: 1px solid #eee;
         }
 
-        li:hover {
+        li:hover, li.selected {
             background-color: #f9f9f9;
+        }
+        
+        li.selected {
+            outline: 1px solid #0070c9;
         }
 
         a {
@@ -207,8 +270,19 @@
 
             .sidebar,
             .content {
-                padding: 2rem;
                 height: 100%;
+            }
+            
+            .sidebar {
+                padding: 2rem;
+            }
+            
+            .search-container {
+                padding: 2rem 2rem 1rem 2rem;
+            }
+            
+            .results-container {
+                padding: 0 2rem 2rem 2rem;
             }
         }
     </style>
@@ -237,12 +311,19 @@
 
         <!-- Content area -->
         <div class="content">
-            <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
-
-            <div id="error-message" class="message error-message"></div>
-            <div id="loading-indicator" class="loading-indicator">Loading SwiftUI views...</div>
-            <div id="no-results" class="message no-results">No matching views found</div>
-            <ul id="views-list"></ul>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
+                    <div id="clear-search" class="clear-search"></div>
+                </div>
+                <div id="error-message" class="message error-message"></div>
+            </div>
+            
+            <div class="results-container">
+                <div id="loading-indicator" class="loading-indicator">Loading SwiftUI views...</div>
+                <div id="no-results" class="message no-results">No matching views found</div>
+                <ul id="views-list"></ul>
+            </div>
         </div>
     </div>
 
@@ -258,6 +339,7 @@
             };
 
             let allViews = [];
+            let selectedIndex = -1; // Track selected item for keyboard navigation
 
             // Load and display views
             async function loadViews() {
@@ -317,6 +399,10 @@
                 const searchTerm = elements.searchInput.value.toLowerCase();
                 const listItems = elements.viewsList.getElementsByTagName('li');
                 let visibleCount = 0;
+                
+                // Show/hide clear button based on input content
+                const clearButton = document.getElementById('clear-search');
+                clearButton.style.display = searchTerm.length > 0 ? 'block' : 'none';
 
                 for (let i = 0; i < listItems.length; i++) {
                     const item = listItems[i];
@@ -343,9 +429,87 @@
                 }
             }
 
+            // Clear search function
+            function clearSearch() {
+                elements.searchInput.value = '';
+                filterViews();
+                resetSelection();
+                elements.searchInput.focus();
+            }
+            
+            // Handle keyboard navigation
+            function handleKeyboardNavigation(e) {
+                const visibleItems = Array.from(elements.viewsList.getElementsByTagName('li'))
+                    .filter(item => item.style.display !== 'none');
+                
+                if (visibleItems.length === 0) return;
+                
+                // Arrow down
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    
+                    // Clear previous selection
+                    if (selectedIndex >= 0 && selectedIndex < visibleItems.length) {
+                        visibleItems[selectedIndex].classList.remove('selected');
+                    }
+                    
+                    // Move selection down or cycle to top
+                    selectedIndex = (selectedIndex < visibleItems.length - 1) ? selectedIndex + 1 : 0;
+                    
+                    // Apply new selection
+                    visibleItems[selectedIndex].classList.add('selected');
+                    visibleItems[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+                
+                // Arrow up
+                else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    
+                    // Clear previous selection
+                    if (selectedIndex >= 0 && selectedIndex < visibleItems.length) {
+                        visibleItems[selectedIndex].classList.remove('selected');
+                    }
+                    
+                    // Move selection up or cycle to bottom
+                    selectedIndex = (selectedIndex > 0) ? selectedIndex - 1 : visibleItems.length - 1;
+                    
+                    // Apply new selection
+                    visibleItems[selectedIndex].classList.add('selected');
+                    visibleItems[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+                
+                // Enter key - follow the link of selected item
+                else if (e.key === 'Enter' && selectedIndex >= 0 && selectedIndex < visibleItems.length) {
+                    e.preventDefault();
+                    const link = visibleItems[selectedIndex].querySelector('a');
+                    if (link) {
+                        window.open(link.href, '_blank');
+                    }
+                }
+                
+                // Escape key - clear search
+                else if (e.key === 'Escape') {
+                    clearSearch();
+                }
+            }
+            
+            // Reset selection when filtering
+            function resetSelection() {
+                const selected = elements.viewsList.querySelector('li.selected');
+                if (selected) {
+                    selected.classList.remove('selected');
+                }
+                selectedIndex = -1;
+            }
+            
             // Set up event listeners
-            elements.searchInput.addEventListener('input', filterViews);
+            elements.searchInput.addEventListener('input', function() {
+                filterViews();
+                resetSelection();
+            });
+            elements.searchInput.addEventListener('keydown', handleKeyboardNavigation);
             window.addEventListener('hashchange', checkUrlHash);
+            document.getElementById('clear-search').addEventListener('click', clearSearch);
 
             // Start loading
             loadViews();
