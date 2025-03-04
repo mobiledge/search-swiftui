@@ -4,67 +4,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SwiftUI Views Directory | Complete List of iOS UI Components</title>
+    <title>SwiftUI Views Directory</title>
     <meta name="description"
-        content="A searchable directory of SwiftUI views with direct links to Apple's official documentation. Find the perfect SwiftUI component for your iOS, macOS, or watchOS app.">
-    <meta name="keywords" content="SwiftUI, iOS development, Apple, UI components, Swift programming, iOS views">
-    <link rel="canonical" href="https://yourwebsite.com/swiftui-views" />
-
-    <!-- Open Graph / Social Media Meta Tags -->
-    <meta property="og:title" content="SwiftUI Views Directory">
-    <meta property="og:description" content="Find and explore all SwiftUI views with direct links to documentation">
-    <meta property="og:url" content="https://yourwebsite.com/swiftui-views">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary">
+        content="A searchable directory of SwiftUI views with direct links to Apple's official documentation.">
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Ensure fonts are loaded before they're used */
+        :root {
+            font-family: 'Open Sans', sans-serif;
+        }
+
         body {
             font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
             line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            padding: 1rem;
+            min-height: 100vh;
+        }
+
+        /* Apply Open Sans to the entire sidebar */
+        .sidebar {
+            font-family: 'Open Sans', sans-serif;
         }
 
         h1,
         h2 {
-            font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 400;
             color: #333;
         }
 
         h1 {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+            border-bottom: none;
+            padding-bottom: 0;
+            font-size: 28px;
+            letter-spacing: -0.5px;
         }
 
         h2 {
-            margin-top: 25px;
-            font-size: 1.5em;
+            margin-top: 0;
+            font-size: 20px;
+            color: #0070c9;
+            margin-bottom: 12px;
         }
 
-        .search-container {
-            margin-bottom: 20px;
+        /* App container */
+        .app {
+            background-color: white;
+            height: calc(100vh - 2rem);
         }
 
+        /* Sidebar and content sections */
+        .sidebar,
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: #f8f9fa;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar-header {
+            padding-bottom: 12px;
+            position: relative;
+        }
+
+        .sidebar-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background-color: #0070c9;
+        }
+
+        /* Info sections */
+        .info-section {
+            padding: 20px;
+            background-color: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            line-height: 1.5;
+        }
+
+        .info-section p {
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .info-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Search controls */
         #search-input {
             width: 100%;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            box-sizing: border-box;
+            margin-bottom: 20px;
             font-family: inherit;
         }
 
         #search-input:focus {
             outline: none;
             border-color: #0070c9;
-            box-shadow: 0 0 0 2px rgba(0, 112, 201, 0.2);
+            box-shadow: none;
         }
 
+        /* Results list */
         ul {
             list-style-type: none;
-            padding: 0;
         }
 
         li {
@@ -79,19 +145,32 @@
         a {
             color: #0070c9;
             text-decoration: none;
-            font-size: 1.1em;
+            /* font-size: 1.1em; */
+            transition: color 0.2s ease;
+        }
+
+        /* .sidebar a {
+            font-weight: 600;
+        } */
+
+        .content a {
+            font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
         }
 
         a:hover {
-            text-decoration: underline;
+            color: #004e8c;
+        }
+
+        /* Status messages */
+        .message {
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
         }
 
         .error-message {
             color: #d9534f;
-            padding: 10px;
             background-color: #f2dede;
-            border-radius: 4px;
-            display: none;
         }
 
         .loading-indicator {
@@ -104,150 +183,139 @@
             padding: 15px;
             color: #666;
             font-style: italic;
-            display: none;
         }
 
-        .subtitle-section {
-            font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
+        /* Responsive layout */
+        @media (min-width: 1024px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: white;
+            }
 
-        .about-section {
-            font-family: "SF Pro Display", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-            margin: 15px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            .app {
+                display: grid;
+                grid-template-columns: 2fr 3fr;
+                grid-gap: 0;
+                padding: 0;
+                max-width: 1200px;
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .sidebar,
+            .content {
+                padding: 2rem;
+                height: 100%;
+            }
         }
     </style>
-
-    <!-- Schema.org structured data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": "SwiftUI Views Directory",
-      "description": "A comprehensive directory of SwiftUI views with links to official documentation",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Your Name or Organization"
-      }
-    }
-    </script>
 </head>
 
 <body>
-    <h1>Search SwiftUI</h1>
-    <div class="subtitle-section">
-        <p>Explore a complete list of SwiftUI views with direct links to Apple's official documentation. Search for the
-            perfect UI component for your iOS, macOS, or watchOS app.</p>
-    </div>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Search SwiftUI</h1>
+            </div>
 
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
-    </div>
+            <div class="info-section">
+                <p>Explore Apple's complete collection of SwiftUI views and components with this searchable directory.
+                    Each item links directly to the official documentation.</p>
+                <p>For more comprehensive resources on SwiftUI development, visit <a
+                        href="https://developer.apple.com/documentation/swiftui/" target="_blank">Apple's SwiftUI
+                        Documentation</a>.</p>
+                <p>View the source code for this project on <a
+                        href="https://github.com/mobiledge/search-swiftui/tree/main" target="_blank">GitHub</a>.</p>
+                <p>Need custom mobile app solutions? Visit <a href="https://mobiledge.io"
+                        target="_blank">mobiledge.io</a> for professional iOS and SwiftUI development services.</p>
+            </div>
+        </div>
 
-    <div id="error-message" class="error-message"></div>
-    <div id="loading-indicator" class="loading-indicator">Loading SwiftUI views...</div>
-    <div id="no-results" class="no-results">No matching views found</div>
-    <ul id="views-list"></ul>
+        <!-- Content area -->
+        <div class="content">
+            <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
+
+            <div id="error-message" class="message error-message"></div>
+            <div id="loading-indicator" class="loading-indicator">Loading SwiftUI views...</div>
+            <div id="no-results" class="message no-results">No matching views found</div>
+            <ul id="views-list"></ul>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const tsvUrl = 'https://gist.githubusercontent.com/mobiledge/18d10e8ec3e5c93ee6fec58c37cf761b/raw/0e28ae855b2fe424252f517dce069b452e1ba5f5/swiftui-views.tsv';
-            const viewsList = document.getElementById('views-list');
-            const errorMessage = document.getElementById('error-message');
-            const loadingIndicator = document.getElementById('loading-indicator');
-            const searchInput = document.getElementById('search-input');
-            const noResults = document.getElementById('no-results');
+            const elements = {
+                viewsList: document.getElementById('views-list'),
+                errorMessage: document.getElementById('error-message'),
+                loadingIndicator: document.getElementById('loading-indicator'),
+                searchInput: document.getElementById('search-input'),
+                noResults: document.getElementById('no-results')
+            };
 
-            let allViews = []; // Store all views for filtering
+            let allViews = [];
 
-            // Check for hash in URL to select a specific view
-            function checkUrlHash() {
-                const hash = window.location.hash;
-                if (hash) {
-                    const viewName = decodeURIComponent(hash.substring(1));
-                    searchInput.value = viewName;
-                    filterViews();
-                }
-            }
+            // Load and display views
+            async function loadViews() {
+                try {
+                    const response = await fetch(tsvUrl);
+                    if (!response.ok) throw new Error('Network response was not ok');
 
-            // Fetch the TSV data
-            fetch(tsvUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(data => {
-                    loadingIndicator.style.display = 'none';
-
-                    // Parse TSV data
+                    const data = await response.text();
                     const rows = data.trim().split('\n');
 
                     // Skip header row
-                    const startIndex = 1;
-
-                    // Process each row
-                    for (let i = startIndex; i < rows.length; i++) {
+                    for (let i = 1; i < rows.length; i++) {
                         const columns = rows[i].split('\t');
 
                         if (columns.length == 2) {
                             const viewName = columns[0].trim();
                             const path = columns[1].trim();
 
-                            // Store view data
-                            allViews.push({
-                                name: viewName,
-                                path: path
-                            });
+                            allViews.push({ name: viewName, path: path });
 
-                            // Create list item
                             const listItem = document.createElement('li');
                             listItem.dataset.name = viewName.toLowerCase();
 
-                            // Create link with Apple Developer URL
                             const link = document.createElement('a');
                             link.href = 'https://developer.apple.com' + path;
                             link.textContent = viewName;
-                            link.target = '_blank'; // Open in new tab
-                            link.addEventListener('click', () => {
-                                selectView(viewName);
-                            });
+                            link.target = '_blank';
 
                             listItem.appendChild(link);
-                            viewsList.appendChild(listItem);
+                            elements.viewsList.appendChild(listItem);
                         }
                     }
 
-                    // Show message if no views found
-                    if (viewsList.children.length === 0) {
-                        errorMessage.textContent = 'No SwiftUI views found in the data.';
-                        errorMessage.style.display = 'block';
+                    if (elements.viewsList.children.length === 0) {
+                        showError('No SwiftUI views found in the data.');
                     }
 
-                    // Focus the search input after loading completes
-                    searchInput.focus();
-
-                    // Check for hash in URL
+                    elements.searchInput.focus();
                     checkUrlHash();
-                })
-                .catch(error => {
-                    loadingIndicator.style.display = 'none';
-                    errorMessage.textContent = 'Error loading SwiftUI views: ' + error.message;
-                    errorMessage.style.display = 'block';
-                    console.error('Error fetching or parsing TSV data:', error);
-                });
 
-            // Filter function
+                } catch (error) {
+                    showError('Error loading SwiftUI views: ' + error.message);
+                    console.error('Error fetching or parsing TSV data:', error);
+                } finally {
+                    elements.loadingIndicator.style.display = 'none';
+                }
+            }
+
+            // Show error message
+            function showError(message) {
+                elements.errorMessage.textContent = message;
+                elements.errorMessage.style.display = 'block';
+            }
+
+            // Filter views based on search term
             function filterViews() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const listItems = viewsList.getElementsByTagName('li');
+                const searchTerm = elements.searchInput.value.toLowerCase();
+                const listItems = elements.viewsList.getElementsByTagName('li');
                 let visibleCount = 0;
 
                 for (let i = 0; i < listItems.length; i++) {
@@ -262,29 +330,27 @@
                     }
                 }
 
-                // Show/hide no results message
-                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+                elements.noResults.style.display = visibleCount === 0 ? 'block' : 'none';
             }
 
-            // Function to select a view and update URL hash
-            function selectView(viewName) {
-                window.location.hash = encodeURIComponent(viewName);
+            // Check for hash in URL
+            function checkUrlHash() {
+                const hash = window.location.hash;
+                if (hash) {
+                    const viewName = decodeURIComponent(hash.substring(1));
+                    elements.searchInput.value = viewName;
+                    filterViews();
+                }
             }
 
-            // Add event listener for search input
-            searchInput.addEventListener('input', filterViews);
-
-            // Listen for hash changes
+            // Set up event listeners
+            elements.searchInput.addEventListener('input', filterViews);
             window.addEventListener('hashchange', checkUrlHash);
+
+            // Start loading
+            loadViews();
         });
     </script>
-
-    <footer class="about-section">
-        <h2>About</h2>
-        <p>This directory provides quick access to official Apple documentation for all SwiftUI views. For more comprehensive resources on SwiftUI development, visit <a href="https://developer.apple.com/documentation/swiftui/" target="_blank">Apple's SwiftUI Documentation</a>.</p>
-        <p>View the source code for this project on <a href="https://github.com/mobiledge/search-swiftui/tree/main" target="_blank">GitHub</a>.</p>
-        <p>Need custom mobile app solutions? Visit <a href="https://mobiledge.io" target="_blank">mobiledge.io</a> for professional iOS and SwiftUI development services.</p>
-    </footer>
 </body>
 
 </html>
