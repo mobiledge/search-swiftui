@@ -87,12 +87,12 @@
             background-color: white;
             padding: 20px 20px 10px 20px;
         }
-        
+
         .search-input-wrapper {
             position: relative;
             width: 100%;
         }
-        
+
         .clear-search {
             position: absolute;
             right: 10px;
@@ -104,13 +104,14 @@
             display: none;
             opacity: 0.5;
             transition: opacity 0.2s;
-            margin-top: -10px; /* Adjusting vertical alignment */
+            margin-top: -10px;
+            /* Adjusting vertical alignment */
         }
-        
+
         .clear-search:hover {
             opacity: 1;
         }
-        
+
         .clear-search::before,
         .clear-search::after {
             content: '';
@@ -121,11 +122,11 @@
             top: 0;
             left: 50%;
         }
-        
+
         .clear-search::before {
             transform: translateX(-50%) rotate(45deg);
         }
-        
+
         .clear-search::after {
             transform: translateX(-50%) rotate(-45deg);
         }
@@ -187,6 +188,52 @@
             box-shadow: none;
         }
 
+        /* Tag filters */
+        .tag-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag-filter {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 4px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .tag-filter:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tag-filter.active {
+            background-color: #0070c9;
+            color: white;
+            border-color: #0070c9;
+        }
+
+        /* Added clear filter button */
+        .clear-filter {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            padding: 4px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Open Sans', sans-serif;
+            color: #666;
+        }
+
+        .clear-filter:hover {
+            background-color: #e0e0e0;
+        }
+
         /* Results list */
         ul {
             list-style-type: none;
@@ -195,12 +242,16 @@
         li {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        li:hover, li.selected {
+        li:hover,
+        li.selected {
             background-color: #f9f9f9;
         }
-        
+
         li.selected {
             outline: 1px solid #0070c9;
         }
@@ -208,13 +259,8 @@
         a {
             color: #0070c9;
             text-decoration: none;
-            /* font-size: 1.1em; */
             transition: color 0.2s ease;
         }
-
-        /* .sidebar a {
-            font-weight: 600;
-        } */
 
         .content a {
             font-family: "SF Mono", SFMono-Regular, ui-monospace, Menlo, monospace;
@@ -222,6 +268,21 @@
 
         a:hover {
             color: #004e8c;
+        }
+
+        .item-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .item-tag {
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            color: #666;
+            font-family: 'Open Sans', sans-serif;
         }
 
         /* Status messages */
@@ -272,15 +333,15 @@
             .content {
                 height: 100%;
             }
-            
+
             .sidebar {
                 padding: 2rem;
             }
-            
+
             .search-container {
                 padding: 2rem 2rem 1rem 2rem;
             }
-            
+
             .results-container {
                 padding: 0 2rem 2rem 2rem;
             }
@@ -299,6 +360,8 @@
             <div class="info-section">
                 <p>Explore Apple's complete collection of SwiftUI views and components with this searchable directory.
                     Each item links directly to the official documentation.</p>
+                <p>Filter by tags to find specific types of components such as shapes, text elements, or layout
+                    containers.</p>
                 <p>For more comprehensive resources on SwiftUI development, visit <a
                         href="https://developer.apple.com/documentation/swiftui/" target="_blank">Apple's SwiftUI
                         Documentation</a>.</p>
@@ -316,9 +379,12 @@
                     <input type="text" id="search-input" placeholder="Search SwiftUI views..." autocomplete="off">
                     <div id="clear-search" class="clear-search"></div>
                 </div>
+                <div id="tag-filters" class="tag-filters">
+                    <!-- Tag filters will be inserted here -->
+                </div>
                 <div id="error-message" class="message error-message"></div>
             </div>
-            
+
             <div class="results-container">
                 <div id="loading-indicator" class="loading-indicator">Loading SwiftUI views...</div>
                 <div id="no-results" class="message no-results">No matching views found</div>
@@ -329,17 +395,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const tsvUrl = 'https://gist.githubusercontent.com/mobiledge/18d10e8ec3e5c93ee6fec58c37cf761b/raw/0e28ae855b2fe424252f517dce069b452e1ba5f5/swiftui-views.tsv';
+            const tsvUrl = 'https://gist.githubusercontent.com/mobiledge/18d10e8ec3e5c93ee6fec58c37cf761b/raw/b280dd489e9c14e9029a782725bcafbf38657222/swiftui-views.tsv';
             const elements = {
                 viewsList: document.getElementById('views-list'),
                 errorMessage: document.getElementById('error-message'),
                 loadingIndicator: document.getElementById('loading-indicator'),
                 searchInput: document.getElementById('search-input'),
-                noResults: document.getElementById('no-results')
+                noResults: document.getElementById('no-results'),
+                tagFilters: document.getElementById('tag-filters')
             };
 
             let allViews = [];
             let selectedIndex = -1; // Track selected item for keyboard navigation
+            let activeTag = null; // Track the single active tag filter
+            let allTags = new Set(); // All available tags
 
             // Load and display views
             async function loadViews() {
@@ -354,27 +423,53 @@
                     for (let i = 1; i < rows.length; i++) {
                         const columns = rows[i].split('\t');
 
-                        if (columns.length == 2) {
+                        if (columns.length >= 3) {
                             const viewName = columns[0].trim();
                             const path = columns[1].trim();
+                            const tags = columns[2].trim().split(', ').filter(tag => tag.length > 0);
 
-                            allViews.push({ name: viewName, path: path });
+                            // Add to all available tags
+                            tags.forEach(tag => allTags.add(tag));
+
+                            allViews.push({
+                                name: viewName,
+                                path: path,
+                                tags: tags,
+                                searchString: viewName.toLowerCase()
+                            });
 
                             const listItem = document.createElement('li');
                             listItem.dataset.name = viewName.toLowerCase();
+                            listItem.dataset.tags = tags.join(',');
 
+                            const linkContainer = document.createElement('div');
                             const link = document.createElement('a');
                             link.href = 'https://developer.apple.com' + path;
                             link.textContent = viewName;
                             link.target = '_blank';
+                            linkContainer.appendChild(link);
 
-                            listItem.appendChild(link);
+                            const tagsContainer = document.createElement('div');
+                            tagsContainer.className = 'item-tags';
+
+                            tags.forEach(tag => {
+                                const tagSpan = document.createElement('span');
+                                tagSpan.className = 'item-tag';
+                                tagSpan.textContent = tag;
+                                tagsContainer.appendChild(tagSpan);
+                            });
+
+                            listItem.appendChild(linkContainer);
+                            listItem.appendChild(tagsContainer);
                             elements.viewsList.appendChild(listItem);
                         }
                     }
 
                     if (elements.viewsList.children.length === 0) {
                         showError('No SwiftUI views found in the data.');
+                    } else {
+                        // Create tag filters
+                        createTagFilters();
                     }
 
                     elements.searchInput.focus();
@@ -388,18 +483,75 @@
                 }
             }
 
+            // Create tag filter buttons
+            function createTagFilters() {
+                // Convert Set to sorted Array
+                const sortedTags = Array.from(allTags).sort();
+
+                // Add "All" filter first
+                const clearFilterButton = document.createElement('div');
+                clearFilterButton.className = 'clear-filter';
+                clearFilterButton.textContent = 'All';
+                clearFilterButton.addEventListener('click', function () {
+                    clearTagFilter();
+                });
+                elements.tagFilters.appendChild(clearFilterButton);
+
+                // Add individual tag filters
+                sortedTags.forEach(tag => {
+                    const tagButton = document.createElement('div');
+                    tagButton.className = 'tag-filter';
+                    tagButton.textContent = tag;
+                    tagButton.dataset.tag = tag;
+
+                    tagButton.addEventListener('click', function () {
+                        selectTagFilter(tag, tagButton);
+                    });
+
+                    elements.tagFilters.appendChild(tagButton);
+                });
+            }
+
+            // Select a single tag filter
+            function selectTagFilter(tag, button) {
+                // Deactivate all tag filters first
+                const allTagButtons = elements.tagFilters.querySelectorAll('.tag-filter');
+                allTagButtons.forEach(btn => btn.classList.remove('active'));
+
+                // If the clicked tag is already active, clear it
+                if (activeTag === tag) {
+                    activeTag = null;
+                } else {
+                    // Otherwise, set the new active tag and highlight its button
+                    activeTag = tag;
+                    button.classList.add('active');
+                }
+
+                filterViews();
+                resetSelection();
+            }
+
+            // Clear tag filter (select none)
+            function clearTagFilter() {
+                activeTag = null;
+                const allTagButtons = elements.tagFilters.querySelectorAll('.tag-filter');
+                allTagButtons.forEach(btn => btn.classList.remove('active'));
+                filterViews();
+                resetSelection();
+            }
+
             // Show error message
             function showError(message) {
                 elements.errorMessage.textContent = message;
                 elements.errorMessage.style.display = 'block';
             }
 
-            // Filter views based on search term
+            // Filter views based on search term and active tag
             function filterViews() {
                 const searchTerm = elements.searchInput.value.toLowerCase();
                 const listItems = elements.viewsList.getElementsByTagName('li');
                 let visibleCount = 0;
-                
+
                 // Show/hide clear button based on input content
                 const clearButton = document.getElementById('clear-search');
                 clearButton.style.display = searchTerm.length > 0 ? 'block' : 'none';
@@ -407,8 +559,19 @@
                 for (let i = 0; i < listItems.length; i++) {
                     const item = listItems[i];
                     const viewName = item.dataset.name;
+                    const viewTags = item.dataset.tags.split(',');
 
-                    if (viewName.includes(searchTerm)) {
+                    // Check if the item matches the search term
+                    const matchesSearch = viewName.includes(searchTerm);
+
+                    // Check if the item matches the active tag filter
+                    let matchesTag = true;
+                    if (activeTag !== null) {
+                        matchesTag = viewTags.includes(activeTag);
+                    }
+
+                    // Show the item if it matches both search and tag
+                    if (matchesSearch && matchesTag) {
                         item.style.display = '';
                         visibleCount++;
                     } else {
@@ -432,52 +595,55 @@
             // Clear search function
             function clearSearch() {
                 elements.searchInput.value = '';
+                // Clear tag filter too
+                clearTagFilter();
+
                 filterViews();
                 resetSelection();
                 elements.searchInput.focus();
             }
-            
+
             // Handle keyboard navigation
             function handleKeyboardNavigation(e) {
                 const visibleItems = Array.from(elements.viewsList.getElementsByTagName('li'))
                     .filter(item => item.style.display !== 'none');
-                
+
                 if (visibleItems.length === 0) return;
-                
+
                 // Arrow down
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    
+
                     // Clear previous selection
                     if (selectedIndex >= 0 && selectedIndex < visibleItems.length) {
                         visibleItems[selectedIndex].classList.remove('selected');
                     }
-                    
+
                     // Move selection down or cycle to top
                     selectedIndex = (selectedIndex < visibleItems.length - 1) ? selectedIndex + 1 : 0;
-                    
+
                     // Apply new selection
                     visibleItems[selectedIndex].classList.add('selected');
                     visibleItems[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 }
-                
+
                 // Arrow up
                 else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    
+
                     // Clear previous selection
                     if (selectedIndex >= 0 && selectedIndex < visibleItems.length) {
                         visibleItems[selectedIndex].classList.remove('selected');
                     }
-                    
+
                     // Move selection up or cycle to bottom
                     selectedIndex = (selectedIndex > 0) ? selectedIndex - 1 : visibleItems.length - 1;
-                    
+
                     // Apply new selection
                     visibleItems[selectedIndex].classList.add('selected');
                     visibleItems[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 }
-                
+
                 // Enter key - follow the link of selected item
                 else if (e.key === 'Enter' && selectedIndex >= 0 && selectedIndex < visibleItems.length) {
                     e.preventDefault();
@@ -486,13 +652,13 @@
                         window.open(link.href, '_blank');
                     }
                 }
-                
+
                 // Escape key - clear search
                 else if (e.key === 'Escape') {
                     clearSearch();
                 }
             }
-            
+
             // Reset selection when filtering
             function resetSelection() {
                 const selected = elements.viewsList.querySelector('li.selected');
@@ -501,9 +667,9 @@
                 }
                 selectedIndex = -1;
             }
-            
+
             // Set up event listeners
-            elements.searchInput.addEventListener('input', function() {
+            elements.searchInput.addEventListener('input', function () {
                 filterViews();
                 resetSelection();
             });
